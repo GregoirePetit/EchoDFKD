@@ -1,0 +1,3 @@
+[submodule "ConvLSTM_Segmentation"]
+	path = ConvLSTM_Segmentation
+	url = git@github.com:GregoirePetit/ConvLSTM-Segmentation.git

@@ -6,8 +6,10 @@ dir_path = os.path.dirname(file_path)
 
 
 DATA_DIR = os.path.join(dir_path, "a4c-video-dir")
-VIDEO_DIR = os.path.join(DATA_DIR, "Videos")
+VIDEO_DIR_DEFAULT = os.path.join(DATA_DIR, "Videos")
+VIDEO_DIR = os.getenv("VIDEO_DIR", VIDEO_DIR_DEFAULT)
 OUTPUT_DIR = os.path.join(dir_path, "Output")
+MODELS_DIR = os.path.join(dir_path, "models")
 ORIGINAL_OUTPUTS_DIR = os.path.join(OUTPUT_DIR, "echonet_deeplabV3")
 
 ECHOCLIP_DIR = os.path.join(dir_path, "echoclip")
@@ -27,3 +29,4 @@ volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
 EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")
 
 ARBITRARY_THRESHOLD = 80
+IMG_SIZE = 112

@@ -107,15 +107,20 @@ class Example:
 
     def __repr__(self):
         return self.example_name
+        
+    def get_video_path(self):
+        video_file = self.example_name
+        if not video_file[-4:] == ".avi":
+            video_file += ".avi"
+        video_path = os.path.join(self.video_dir, video_file)
+        return video_path
 
     def get_video(self):
         """
         load the clip
         """
-        video_file = self.example_name
-        if not video_file[-4:] == ".avi":
-            video_file += ".avi"
-        video_path = os.path.join(self.video_dir, video_file)
+        video_path = self.get_video_path()
+        assert os.path.isfile(video_path), "not found : "+video_path
         return load_video(video_path)[0, ...]
 
     def get_traced_frames(self):

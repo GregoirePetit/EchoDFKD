@@ -20,5 +20,8 @@ CURED0 = os.path.join(dir_path, "data", "cured0")
 REPAIRED_LABELS = os.path.join(dir_path, "data", "repaired_labels")
 
 
-APERTURE = os.path.join( dir_path, "output", "segmentation", "deeplabv3_resnet50_random", "size.csv" )
+APERTURE = os.path.join( dir_path, "echonet_deeplab_dir", "size.csv" )
 APERTURE_ECHOCLIP = os.path.join(dir_path, "diasys_frames_auto")
+
+volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
+EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")

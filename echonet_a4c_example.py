@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import cv2
-
+import skimage
 import settings
 
 
@@ -45,6 +45,21 @@ volumetracing_dict = (
 
 EF_df = pd.read_csv(settings.EFDF_PATH)
 EF_dict = {row["FileName"]: row.to_dict() for index, row in EF_df.iterrows()}
+train_EF = EF_df[EF_df["Split"] == "TRAIN"]
+val_EF = EF_df[EF_df["Split"] == "VAL"]
+test_EF = EF_df[EF_df["Split"] == "TEST"]
+train_examples = train_EF["FileName"].values.tolist()
+val_examples = val_EF["FileName"].values.tolist()
+test_examples = test_EF["FileName"].values.tolist()
+
+# We remove the 6 examples that have no entry in Volumetrace
+train_examples.remove("0X2DC68261CBCC04AE")
+train_examples.remove("0X6C435C1B417FDE8A")
+train_examples.remove("0X234005774F4CB5CD")
+train_examples.remove("0X5515B0BD077BE68A")
+train_examples.remove("0X35291BE9AB90FB89")
+test_examples.remove("0X5DD5283AC43CCDD1")
+
 
 echonet_deeplab_aperture = pd.read_csv(settings.APERTURE)
 
@@ -62,7 +77,7 @@ def load_video(avi_file):
     cap.release()
     frames = np.array(frames)[np.newaxis, ...]
     return frames
-
+    
 class Example:
     def __init__(self, example_name, video_dir=settings.VIDEO_DIR):
         self.example_name = example_name

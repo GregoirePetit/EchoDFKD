@@ -3,6 +3,7 @@ import scipy.signal
 import sys
 import os
 import json
+import utils
 
 core_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(core_dir)
@@ -205,12 +206,12 @@ def main(
     tested_model,
     reference,
     example_set,
-    target_dir=settings.METRICS_DIR,
+    metrics_dir=settings.METRICS_DIR,
 ):
     ED_aFD = evaluate_model_afd(
         xp_name=xp_name,
         tested_model=model_name,
-        reference="echoclip",
+        reference=reference,
         outputs_threshold=25,
         shift_parameter=0,
         evaluated_class="ED",
@@ -222,7 +223,7 @@ def main(
     ES_aFD = evaluate_model_afd(
         xp_name=xp_name,
         tested_model=model_name,
-        reference="echoclip",
+        reference=reference,
         outputs_threshold=25,
         shift_parameter=0,
         evaluated_class="ES",
@@ -231,17 +232,11 @@ def main(
     ES_aFD = np.abs(np.array(ES_aFD))
     ES_aFD = np.mean(ES_aFD)
 
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-
     results = {"ED_aFD": ED_aFD, "ES_aFD": ES_aFD}
 
-    metrics_file = os.path.join(
-        target_dir, xp_name, f"{xp_name}_{tested_model}_metrics.json"
-    )
 
-    with open(metrics_file, "w") as f:
-        json.dump(results, f, indent=4)
+    utils.save_scores(results, xp_name, tested_model, metrics_dir)
+
 
     return results
 

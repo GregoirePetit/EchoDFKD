@@ -1,3 +1,5 @@
+import utils
+
 """ 
 This experiment is not described in the paper, but it allows us, similar to the one concerning the localization of the frames of interest ES and ED,
 to evaluate the model using a score on an external task that is not the one used to train it.
@@ -9,6 +11,7 @@ import numpy as np
 import scipy.signal
 import sys
 import os
+import json
 from sklearn.linear_model import LinearRegression
 from scipy.stats import pearsonr
 
@@ -18,6 +21,7 @@ sys.path.append(root_dir)
 import echonet_a4c_example
 import settings
 from scipy.stats import pearsonr
+import argparse
 
 
 def yield_ef_gt(dataset):
@@ -91,17 +95,67 @@ def get_naive_EF_estimation(xp_name, model_name, dataset):
     )
     downstream_naive_EF_estimations = [x for x in naive_EF_estimation_generator]
     return downstream_naive_EF_estimations
+    
+    
+    
+def main(
+    xp_name,
+    tested_model,
+    reference,
+    example_set,
+    metrics_dir=settings.METRICS_DIR,
+):
+    if reference == "echoclip":
+        reference_EF = get_EF_EchoCLIP(dataset=example_set)
+    elif reference == "ground_truth":
+        reference_EF = get_EF_GT(dataset=example_set)
+    else:
+        raise NotImplementedError # TODO targets from other model estimations
+        
+    tested_model_estimations = get_naive_EF_estimation(xp_name, tested_model, example_set)
 
+    results = {"LVEF_correlation": corr_coef(tested_model_estimations, reference_EF)}
+
+    utils.save_scores(results, xp_name, tested_model, metrics_dir)
+    
+    return results
+    
+    
+    
 
 if __name__ == "__main__":
-    model_name = "32"
-    xp_name = "multi/"
-    test_examples = echonet_a4c_example.test_examples
 
-    all_EF_gt = get_EF_GT(dataset=test_examples)
-    all_echoclip_EF = get_EF_EchoCLIP(dataset=test_examples)
-    downstream_naive_EF_estimations = get_naive_EF_estimation(
-        xp_name=xp_name, model_name=model_name, dataset=test_examples
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--xp_name", type=str, default=None, help="Experiment name.")
+    parser.add_argument("--model_name", type=str, default=None)
+    parser.add_argument(
+        "--examples",
+        type=str,
+        default=None,
+        help="Path of a file which contains list of examples on which to infer",
     )
+    parser.add_argument(
+        "--reference",
+        type=str,
+        default="ground_truth",
+        help="What brings the values considered as ground truth",
+    )
+    args = parser.parse_args()
 
-    print(corr_coef(downstream_naive_EF_estimations, all_echoclip_EF))
+    xp_name = args.xp_name
+    model_name = args.model_name
+    examples = args.examples
+    reference = args.reference
+
+    if examples is None:
+        example_names = echonet_a4c_example.test_examples
+    else:
+        with open(examples, "r") as f:
+            example_names = [x for x in f.read().split("\n") if x]
+
+    main(
+        xp_name=xp_name,
+        tested_model=model_name,
+        reference=reference,
+        example_set=example_names,
+    )

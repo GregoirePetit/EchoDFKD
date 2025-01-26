@@ -2,12 +2,15 @@ import numpy as np
 import scipy.signal
 import sys
 import os
+import utils
+import argparse
+
 
 core_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(core_dir)
 sys.path.append(root_dir)
 import echonet_a4c_example
-
+import settings
 
 def yield_gt(dataset, phase):
     """
@@ -54,29 +57,81 @@ def yield_scores(gt_loader, outputs_loader, loss_function, threshold=None):
         yield loss
 
 
-if __name__ == "__main__":
-    tested_models = ["43"]
-    xp_name = "multi/"
-    threshold = 80
-    phase = "ES"
-    loss_function_name = "DICE"
-    test_examples = echonet_a4c_example.test_examples
-    results = []
-    for model_name in tested_models:
-        diff_scores = []
-        outputs_generator = echonet_a4c_example.yield_outputs(
+
+def main(
+    xp_name,
+    tested_model,
+    reference,
+    example_set,
+    metrics_dir=settings.METRICS_DIR,
+    threshold = settings.ARBITRARY_THRESHOLD,
+):
+    if reference == "human":
+        reference_EF_ES = yield_gt(dataset=example_set, phase="ES")
+        reference_EF_ED = yield_gt(dataset=example_set, phase="ED")
+    else:
+        raise NotImplementedError # TODO mettre ici le jugement de la qualité du masque via prompts echoclip
+        
+    ED_outputs = echonet_a4c_example.yield_outputs(
             xp_name=xp_name,
-            model_subname=model_name,
-            examples=test_examples,
-            phase=phase,
+            model_subname=tested_model,
+            examples=example_set,
+            phase='ED',
         )
-        gt_generator = yield_gt(dataset=test_examples, phase=phase)
-        loss_generator = yield_scores(
-            gt_loader=gt_generator,
-            outputs_loader=outputs_generator,
-            loss_function=seg_loss_functions[loss_function_name],
-            threshold=threshold,
+    
+    ES_outputs = echonet_a4c_example.yield_outputs(
+            xp_name=xp_name,
+            model_subname=tested_model,
+            examples=example_set,
+            phase='ES',
         )
-        for loss in loss_generator:
-            diff_scores.append(loss)
-        print(np.mean(diff_scores))
+        
+    ED_loss_generator = yield_scores(reference_EF_ED, ED_outputs, dice_coefficient, threshold)
+    ES_loss_generator = yield_scores(reference_EF_ES, ES_outputs, dice_coefficient, threshold)
+        
+        
+    ED_DICE = np.mean([example_loss for example_loss in ED_loss_generator])
+    ES_DICE = np.mean([example_loss for example_loss in ES_loss_generator])
+
+    results = {"ED_DICE": ED_DICE, "ES_DICE": ES_DICE}
+
+    utils.save_scores(results, xp_name, tested_model, metrics_dir)
+
+    return results
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--xp_name", type=str, default=None, help="Experiment name.")
+    parser.add_argument("--model_name", type=str, default=None)
+    parser.add_argument(
+        "--examples",
+        type=str,
+        default=None,
+        help="Path of a file which contains list of examples on which to infer",
+    )
+    parser.add_argument(
+        "--reference",
+        type=str,
+        default="human",
+        help="What brings the values considered as ground truth",
+    )
+    args = parser.parse_args()
+
+    xp_name = args.xp_name
+    model_name = args.model_name
+    examples = args.examples
+    reference = args.reference
+
+
+    if examples is None:
+        example_names = echonet_a4c_example.test_examples
+    else:
+        with open(examples, "r") as f:
+            example_names = [x for x in f.read().split("\n") if x]
+
+    main(
+        xp_name=xp_name,
+        tested_model=model_name,
+        reference=reference,
+        example_set=example_names,
+    )

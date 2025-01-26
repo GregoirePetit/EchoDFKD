@@ -118,14 +118,14 @@ class Example:
         traces = self.get_traces(frame_number)
         return [mask_from_trace(t) for t in traces]
     def get_diastol_labels(self):
-        if self.example_name in fixed_examples["diastol"]: # on vérifie si les labels ne sont pas déjà présents sous leur forme décortiquée
+        if self.example_name in fixed_examples["diastol"]: # we check if there's an explicit label file
             found_labels = [np.load(x) for x in fixed_examples["diastol"][self.example_name]]
         else:
             diastol_index, _ = self.get_traced_frames()
             found_labels = self.get_traces(diastol_index)
         return found_labels
     def get_systol_labels(self):
-        if self.example_name in fixed_examples["systol"]: # on vérifie si les labels ne sont pas déjà présents sous leur forme décortiquée
+        if self.example_name in fixed_examples["systol"]: # we check if there's an explicit label file
             found_labels = [np.load(x) for x in fixed_examples["systol"][self.example_name]]
         else:
             _, systol_index = self.get_traced_frames()

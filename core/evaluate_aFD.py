@@ -9,6 +9,18 @@ sys.path.append(root_dir)
 import echonet_a4c_example
 
 
+"""
+Code to evaluate the aFD.
+Note that, unlike some approaches we compare ourselves to, the goal is not necessarily to achieve the best possible performance,
+even though our approach somewhat incidentally surpasses the state of the art.
+If we aimed for higher scores, we could introduce a downstream model trained on top of the main one or, at the very least, adjust a few weights, such as a potential lead or lag bias.
+Our work seeks, among other things, to address the challenge of evaluating model performance in a regime where this performance closely approaches that of humans who produce test set labels.
+The objective here is thus to develop an auxiliary task that can assess model quality without relying on the labels (here, segmentation masks) that were used to train the model.
+"""
+
+
+
+
 def get_peaks(
     example_aperture_gt,
     minimal_distance_between_peaks=10,

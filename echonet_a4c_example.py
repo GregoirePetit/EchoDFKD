@@ -174,6 +174,10 @@ class Example:
         return content
 
     def get_echoclip_features(self, source_dir=settings.ECHOCLIP_DIR):
+        """
+        Assumes that the outputs of echoclip have been saved in a JSON file.
+        Collecte les outputs echoclip de différentes expériences en parcourant les sous-dossiers d'ECHOCLIP_DIR
+        """
         file_name = self.example_name + ".json"
         dirs = os.listdir(source_dir)
         found_features = {}

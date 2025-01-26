@@ -2,11 +2,15 @@ import numpy as np
 import scipy.signal
 import sys
 import os
+import json
 
 core_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(core_dir)
 sys.path.append(root_dir)
 import echonet_a4c_example
+import settings
+
+import argparse
 
 
 """
@@ -139,6 +143,8 @@ def get_example_apert(
         example_apert = example.get_deeplab_aperture()
     else:
         xp_outputs = example.get_outputs(xp_name=xp_name, subdir=tested_model)
+        xp_outputs = np.squeeze(xp_outputs)
+        assert np.all(xp_outputs >= 0)
         example_apert = (xp_outputs > outputs_threshold).sum(axis=(-1, -2))
     example_apert = example_apert - example_apert.mean()
     example_apert_std = example_apert.std()
@@ -146,6 +152,7 @@ def get_example_apert(
         example_apert.fill(0.0)
     else:
         example_apert /= example_apert_std
+    assert len(example_apert.shape) == 1, "outputs more than 1D " + repr(tested_model)
     return example_apert
 
 
@@ -180,6 +187,7 @@ def evaluate_model_afd(
             xp_name,
             outputs_threshold,
         )
+        assert len(example_apert.shape) == 1
         syst_estimation = find_best_index_in_closest_block(
             reverse * example_apert,
             ref_peak_index,
@@ -192,27 +200,83 @@ def evaluate_model_afd(
     return np.array(delay_collection), example_collection
 
 
+def main(
+    xp_name,
+    tested_model,
+    reference,
+    example_set,
+    target_dir=settings.METRICS_DIR,
+):
+    ED_aFD = evaluate_model_afd(
+        xp_name=xp_name,
+        tested_model=model_name,
+        reference="echoclip",
+        outputs_threshold=25,
+        shift_parameter=0,
+        evaluated_class="ED",
+        example_set=example_set,
+    )[0]
+    ED_aFD = np.abs(np.array(ED_aFD))
+    ED_aFD = np.mean(ED_aFD)
+
+    ES_aFD = evaluate_model_afd(
+        xp_name=xp_name,
+        tested_model=model_name,
+        reference="echoclip",
+        outputs_threshold=25,
+        shift_parameter=0,
+        evaluated_class="ES",
+        example_set=example_set,
+    )[0]
+    ES_aFD = np.abs(np.array(ES_aFD))
+    ES_aFD = np.mean(ES_aFD)
+
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    results = {"ED_aFD": ED_aFD, "ES_aFD": ES_aFD}
+
+    metrics_file = os.path.join(target_dir, f"{xp_name}_{tested_model}_metrics.json")
+
+    with open(metrics_file, "w") as f:
+        json.dump(results, f, indent=4)
+
+    return results
+
+
 if __name__ == "__main__":
 
-    tested_models = ["43"]
-    xp_name = "multi/"
-    output_threshold = 25
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--xp_name", type=str, default=None, help="Experiment name.")
+    parser.add_argument("--model_name", type=str, default=None)
+    parser.add_argument(
+        "--examples",
+        type=str,
+        default=None,
+        help="Path of a file which contains list of examples on which to infer",
+    )
+    parser.add_argument(
+        "--reference",
+        type=str,
+        default="echoclip",
+        help="What brings the values considered as ground truth",
+    )
+    args = parser.parse_args()
 
-    complete_test_set = echonet_a4c_example.test_examples
+    xp_name = args.xp_name
+    model_name = args.model_name
+    examples = args.examples
+    reference = args.reference
 
-    results = []
-    for model_name in tested_models:
-        results.append(
-            evaluate_model_afd(
-                xp_name=xp_name,
-                tested_model=model_name,
-                reference="echoclip",
-                outputs_threshold=output_threshold,
-                shift_parameter=0,
-                evaluated_class="ED",
-                example_set=complete_test_set,
-            )[0]
-        )
-    results_ED = np.abs(np.array(results))
-    ED = np.mean(results_ED, 1)
-    print(ED)
+    if examples is None:
+        example_names = echonet_a4c_example.test_examples
+    else:
+        with open(examples, "r") as f:
+            example_names = [x for x in f.read().split("\n") if x]
+
+    main(
+        xp_name=xp_name,
+        tested_model=model_name,
+        reference=reference,
+        example_set=example_names,
+    )

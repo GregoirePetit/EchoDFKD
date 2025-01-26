@@ -240,7 +240,7 @@ class Example:
         load echoclip signal about phases
         """
         target_dir = settings.APERTURE_ECHOCLIP
-        target_path = os.path.join(target_dir, self.example_name + "_aperture.npy")
+        target_path = os.path.join(target_dir, self.example_name + ".npy")
         return np.load(target_path)
 
 

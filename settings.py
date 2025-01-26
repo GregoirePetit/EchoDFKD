@@ -23,10 +23,12 @@ REPAIRED_LABELS = os.path.join(dir_path, "data", "repaired_labels")
 
 
 APERTURE = os.path.join( dir_path, "echonet_deeplab_dir", "size.csv" )
-APERTURE_ECHOCLIP = os.path.join(dir_path, "data", "diasys_frames_auto")
+APERTURE_ECHOCLIP = os.path.join(dir_path, "data", "diasys_frames_echoclip_auto_test_set")
 
 volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
 EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")
+
+METRICS_DIR = os.path.join(OUTPUT_DIR, "metrics")
 
 ARBITRARY_THRESHOLD = 80
 IMG_SIZE = 112

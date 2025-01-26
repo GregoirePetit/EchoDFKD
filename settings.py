@@ -29,6 +29,7 @@ volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
 EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")
 
 METRICS_DIR = os.path.join(OUTPUT_DIR, "metrics")
+VISUALS_DIR = os.path.join(OUTPUT_DIR, "visuals")
 
 ARBITRARY_THRESHOLD = 80
 IMG_SIZE = 112

@@ -236,7 +236,9 @@ def main(
 
     results = {"ED_aFD": ED_aFD, "ES_aFD": ES_aFD}
 
-    metrics_file = os.path.join(target_dir, f"{xp_name}_{tested_model}_metrics.json")
+    metrics_file = os.path.join(
+        target_dir, xp_name, f"{xp_name}_{tested_model}_metrics.json"
+    )
 
     with open(metrics_file, "w") as f:
         json.dump(results, f, indent=4)
@@ -258,7 +260,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--reference",
         type=str,
-        default="echoclip",
+        default="human",
         help="What brings the values considered as ground truth",
     )
     args = parser.parse_args()

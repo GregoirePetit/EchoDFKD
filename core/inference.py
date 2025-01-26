@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import os
 import argparse
+import json
 
 core_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(core_dir)
@@ -141,5 +142,16 @@ if __name__ == "__main__":
     target_dir = os.path.join(settings.OUTPUT_DIR, xp_name, model_name)
     if not os.path.isdir(target_dir):
         os.makedirs(target_dir)
+
+    # Save the weights of the model for later plots
+    trainable_params_target_dir = os.path.join(settings.METRICS_DIR, xp_name)
+    if not os.path.isdir(trainable_params_target_dir):
+        os.makedirs(trainable_params_target_dir)
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    nweights_file = os.path.join(
+        trainable_params_target_dir, f"{xp_name}_{model_name}_weights.json"
+    )
+    with open(nweights_file, "w") as f:
+        json.dump(trainable_params, f)
 
     main(model=model, examples=example_names, target_dir=target_dir, device=device)

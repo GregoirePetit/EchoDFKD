@@ -14,15 +14,15 @@ def mask_from_trace(trace, handle_incomplete_labels=False):
     if trace is None:
         return None
     if not handle_incomplete_labels:
-        if trace.shape[0] != 21:
+        if trace.shape[0] != settings.STANDARD_TRACE_SEGMENTS:
             return None
     x1, y1, x2, y2 = trace[:, 0], trace[:, 1], trace[:, 2], trace[:, 3]
     x = np.concatenate((x1[1:], np.flip(x2[1:])))
     y = np.concatenate((y1[1:], np.flip(y2[1:])))
     r, c = skimage.draw.polygon(
-        np.rint(y).astype(int), np.rint(x).astype(int), (112, 112)
+        np.rint(y).astype(int), np.rint(x).astype(int), (settings.IMG_SIZE, settings.IMG_SIZE)
     )
-    mask = np.zeros((112, 112), np.float32)
+    mask = np.zeros((settings.IMG_SIZE, settings.IMG_SIZE), np.float32)
     mask[r, c] = 1
     return mask
 
@@ -73,7 +73,7 @@ def load_video(avi_file):
         if not ret:
             break
         # Resize to (112, 112)
-        frame = cv2.resize(frame, (112, 112))
+        frame = cv2.resize(frame, (settings.IMG_SIZE, settings.IMG_SIZE))
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         frames.append(frame[..., np.newaxis])
     cap.release()
@@ -87,7 +87,7 @@ class Example:
         self.video_dir = video_dir
         # Assign ef_info_dict and tracing_info_dict directly
         self.ef_info_dict = EF_dict[example_name]
-        self.tracing_info_dict = volumetracing_dict[example_name + ".avi"]
+        self.tracing_info_dict = volumetracing_dict[example_name + settings.EXAMPLES_SUFFIX_IN_VOLUMETRACING]
         self.traces = self._build_trace_dict()
         # Dynamically set attributes for ef_info
         for key, value in self.ef_info_dict.items():
@@ -110,8 +110,9 @@ class Example:
         
     def get_video_path(self):
         video_file = self.example_name
-        if not video_file[-4:] == ".avi":
-            video_file += ".avi"
+        extension = settings.VIDEO_EXTENSION
+        if not video_file[-len(settings.VIDEO_EXTENSION):] == settings.VIDEO_EXTENSION:
+            video_file += settings.VIDEO_EXTENSION
         video_path = os.path.join(self.video_dir, video_file)
         return video_path
 
@@ -135,7 +136,7 @@ class Example:
         """
         trace = self.traces.get(frame_index, None)
         trace = np.column_stack((trace["X1"], trace["Y1"], trace["X2"], trace["Y2"]))
-        if trace.shape[0] <= 21:  # single annotator
+        if trace.shape[0] <= settings.STANDARD_TRACE_SEGMENTS:  # single annotator
             return [trace]
         else:
             raise Exception("shouldn't need to handle multiple annotators any more")
@@ -197,7 +198,7 @@ class Example:
         """
         only available for test examples
         """
-        corresponding_entry = self.example_name + ".avi"
+        corresponding_entry = self.example_name + settings.EXAMPLES_SUFFIX_IN_APERTURE
         example_data = echonet_deeplab_aperture[
             echonet_deeplab_aperture["Filename"] == corresponding_entry
         ]
@@ -208,7 +209,7 @@ class Example:
         """
         only available for test examples
         """
-        corresponding_entry = self.example_name + ".avi"
+        corresponding_entry = self.example_name + settings.EXAMPLES_SUFFIX_IN_APERTURE
         example_data = echonet_deeplab_aperture[
             echonet_deeplab_aperture["Filename"] == corresponding_entry
         ]
@@ -233,14 +234,14 @@ class Example:
             mask = np.load(name + ".npz")["arr_0"]
         else:
             raise Exception("not found : " + name)
-        return mask
+        return mask.squeeze()
 
     def get_xp_aperture_gt(self):
         """
         load echoclip signal about phases
         """
         target_dir = settings.APERTURE_ECHOCLIP
-        target_path = os.path.join(target_dir, self.example_name + ".npy")
+        target_path = os.path.join(target_dir, self.example_name + settings.APERTURE_ECHOCLIP_EXTENSION)
         return np.load(target_path)
 
 
@@ -252,7 +253,11 @@ def yield_outputs(xp_name, model_subname, examples, phase):
         dia_index, sys_index = Example(example).get_traced_frames()
         xp_outputs = Example(example).get_outputs(xp_name=xp_name, subdir=model_subname)
         if phase == "ED":
-            xp_outputs = xp_outputs[dia_index]
+            try:
+                xp_outputs = xp_outputs[dia_index]
+            except IndexError:
+                print("can't open ", dia_index, " nth frame in mask tensor of shape ", xp_outputs.shapef)
+                raise IndexError
         elif phase == "ES":
             xp_outputs = xp_outputs[sys_index]
         else:

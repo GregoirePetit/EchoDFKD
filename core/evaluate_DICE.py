@@ -12,6 +12,7 @@ sys.path.append(root_dir)
 import echonet_a4c_example
 import settings
 
+
 def yield_gt(dataset, phase):
     """
     For now we select the first label when we find several labelers,
@@ -57,39 +58,41 @@ def yield_scores(gt_loader, outputs_loader, loss_function, threshold=None):
         yield loss
 
 
-
 def main(
     xp_name,
     tested_model,
     reference,
     example_set,
     metrics_dir=settings.METRICS_DIR,
-    threshold = settings.ARBITRARY_THRESHOLD,
+    threshold=settings.ARBITRARY_THRESHOLD,
 ):
     if reference == "human":
         reference_EF_ES = yield_gt(dataset=example_set, phase="ES")
         reference_EF_ED = yield_gt(dataset=example_set, phase="ED")
     else:
-        raise NotImplementedError # TODO mettre ici le jugement de la qualité du masque via prompts echoclip
-        
+        raise NotImplementedError  # TODO mettre ici le jugement de la qualité du masque via prompts echoclip
+
     ED_outputs = echonet_a4c_example.yield_outputs(
-            xp_name=xp_name,
-            model_subname=tested_model,
-            examples=example_set,
-            phase='ED',
-        )
-    
+        xp_name=xp_name,
+        model_subname=tested_model,
+        examples=example_set,
+        phase="ED",
+    )
+
     ES_outputs = echonet_a4c_example.yield_outputs(
-            xp_name=xp_name,
-            model_subname=tested_model,
-            examples=example_set,
-            phase='ES',
-        )
-        
-    ED_loss_generator = yield_scores(reference_EF_ED, ED_outputs, dice_coefficient, threshold)
-    ES_loss_generator = yield_scores(reference_EF_ES, ES_outputs, dice_coefficient, threshold)
-        
-        
+        xp_name=xp_name,
+        model_subname=tested_model,
+        examples=example_set,
+        phase="ES",
+    )
+
+    ED_loss_generator = yield_scores(
+        reference_EF_ED, ED_outputs, dice_coefficient, threshold
+    )
+    ES_loss_generator = yield_scores(
+        reference_EF_ES, ES_outputs, dice_coefficient, threshold
+    )
+
     ED_DICE = np.mean([example_loss for example_loss in ED_loss_generator])
     ES_DICE = np.mean([example_loss for example_loss in ES_loss_generator])
 
@@ -98,6 +101,7 @@ def main(
     utils.save_scores(results, xp_name, tested_model, metrics_dir)
 
     return results
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -121,7 +125,6 @@ if __name__ == "__main__":
     model_name = args.model_name
     examples = args.examples
     reference = args.reference
-
 
     if examples is None:
         example_names = echonet_a4c_example.test_examples

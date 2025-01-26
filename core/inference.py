@@ -32,10 +32,10 @@ def load_model(
     checkpoint_path,
     num_blocks,
     num_layers_per_block,
-    input_shape=(None, settings.IMG_SIZE, settings.IMG_SIZE, 1),
-    num_filters=12,
-    kernel_size=(3, 3),
-    device=torch.device("cpu"),
+    input_shape,
+    num_filters,
+    kernel_size,
+    device,
 ):
     """
     Redondant with ConvLSTM_Segmentation/inference/model_loader.py but better fits our needs now
@@ -54,7 +54,7 @@ def load_model(
     return model
 
 
-def infer(model, example, device=torch.device("cpu")):
+def infer(model, example):
     example = echonet_a4c_example.Example(example)
     inputs = example.get_video()
     inputs = torch.Tensor(inputs)
@@ -73,10 +73,12 @@ def main(model, examples, target_dir, device):
     except:
         g = examples
     for example in g:
-        outputs = infer(model, example, device=device)
-        output_path = os.path.join(target_dir, example) + ".seg"
+        output_path = (
+            os.path.join(target_dir, example) + settings.TRAINED_MODEL_EXTENSION
+        )
         if os.path.isfile(output_path):
             continue
+        outputs = infer(model, example, device=device)
         np.savez_compressed(output_path, apply_sigmoid_and_convert(outputs))
 
 
@@ -125,17 +127,25 @@ if __name__ == "__main__":
         """
         by default we guess model file name, for instance models/multi/13.ckpt
         """
+        extension = settings.MODEL_WEIGHTS_EXTENSION
         postfix = model_name
         if not xp_name is None:
             postfix = os.path.join(xp_name, postfix)
-        if postfix[:-5] != ".ckpt":
-            postfix = postfix + ".ckpt"
+        if postfix[: -len(extension)] != extension:
+            postfix = postfix + extension
         checkpoint_path = os.path.join(settings.MODELS_DIR, postfix)
+
+    hyperparameters_path = checkpoint_path.split(".")[0] + ".hyperparameters"
+    with open(hyperparameters_path, "r") as f:
+        hyperparameters = json.load(f)
 
     model = load_model(
         checkpoint_path=checkpoint_path,
         num_blocks=num_blocks,
         num_layers_per_block=num_layers_per_block,
+        input_shape=hyperparameters["input_shape"],
+        num_filters=hyperparameters["num_filters"],
+        kernel_size=hyperparameters["kernel_size"],
         device=device,
     )
 

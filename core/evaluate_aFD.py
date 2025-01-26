@@ -234,9 +234,7 @@ def main(
 
     results = {"ED_aFD": ED_aFD, "ES_aFD": ES_aFD}
 
-
     utils.save_scores(results, xp_name, tested_model, metrics_dir)
-
 
     return results
 

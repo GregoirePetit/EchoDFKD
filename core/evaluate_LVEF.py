@@ -95,9 +95,8 @@ def get_naive_EF_estimation(xp_name, model_name, dataset):
     )
     downstream_naive_EF_estimations = [x for x in naive_EF_estimation_generator]
     return downstream_naive_EF_estimations
-    
-    
-    
+
+
 def main(
     xp_name,
     tested_model,
@@ -110,18 +109,18 @@ def main(
     elif reference == "ground_truth":
         reference_EF = get_EF_GT(dataset=example_set)
     else:
-        raise NotImplementedError # TODO targets from other model estimations
-        
-    tested_model_estimations = get_naive_EF_estimation(xp_name, tested_model, example_set)
+        raise NotImplementedError  # TODO targets from other model estimations
+
+    tested_model_estimations = get_naive_EF_estimation(
+        xp_name, tested_model, example_set
+    )
 
     results = {"LVEF_correlation": corr_coef(tested_model_estimations, reference_EF)}
 
     utils.save_scores(results, xp_name, tested_model, metrics_dir)
-    
+
     return results
-    
-    
-    
+
 
 if __name__ == "__main__":
 

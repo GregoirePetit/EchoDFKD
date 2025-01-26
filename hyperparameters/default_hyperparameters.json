@@ -1,0 +1,12 @@
+{
+  "batch_size": 32,
+  "sequence_length": 25,
+  "max_epochs": 350,
+  "early_stopping_patience":10,
+  "num_blocks": 3,
+  "num_layers_per_block": 3,
+  "learning_rate": 0.001,
+  "input_shape": [null, 112, 112, 1],
+  "num_filters": 12,
+  "kernel_size": [3, 3]
+}

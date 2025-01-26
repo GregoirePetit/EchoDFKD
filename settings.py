@@ -23,13 +23,28 @@ REPAIRED_LABELS = os.path.join(dir_path, "data", "repaired_labels")
 
 
 APERTURE = os.path.join( dir_path, "echonet_deeplab_dir", "size.csv" )
-APERTURE_ECHOCLIP = os.path.join(dir_path, "data", "diasys_frames_echoclip_auto_test_set")
+EXAMPLES_SUFFIX_IN_APERTURE = ".avi"
 
-volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
-EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")
+APERTURE_ECHOCLIP = os.path.join(dir_path, "data", "diasys_frames_echoclip_auto_test_set")
+APERTURE_ECHOCLIP_EXTENSION = ".npy"
+
+volumeTracing_path = os.path.join(dir_path, "a4c-video-dir", "VolumeTracings.csv")
+EXAMPLES_SUFFIX_IN_VOLUMETRACING = ".avi"
+EFDF_PATH = os.path.join(dir_path, "a4c-video-dir", "FileList.csv")
+
 
 METRICS_DIR = os.path.join(OUTPUT_DIR, "metrics")
 VISUALS_DIR = os.path.join(OUTPUT_DIR, "visuals")
 
+HYPERPARAMETERS_DIR = os.path.join(dir_path, "hyperparameters")
+DEFAULT_HYPERPARAMETERS_PATH = os.path.join(HYPERPARAMETERS_DIR, "default_hyperparameters.json")
+
+VIDEO_EXTENSION = ".avi"
+TEACHER_MASK_EXTENSION = ".seg.npz"
+TRAINED_MODEL_EXTENSION = ".seg.npz"
+MODEL_WEIGHTS_EXTENSION = ".ckpt"
+
 ARBITRARY_THRESHOLD = 80
 IMG_SIZE = 112
+
+STANDARD_TRACE_SEGMENTS = 21

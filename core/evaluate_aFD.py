@@ -19,8 +19,6 @@ The objective here is thus to develop an auxiliary task that can assess model qu
 """
 
 
-
-
 def get_peaks(
     example_aperture_gt,
     minimal_distance_between_peaks=10,

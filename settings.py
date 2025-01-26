@@ -25,3 +25,5 @@ APERTURE_ECHOCLIP = os.path.join(dir_path, "data", "diasys_frames_auto")
 
 volumeTracing_path = os.path.join(DATA_DIR, "VolumeTracings.csv")
 EFDF_PATH = os.path.join(DATA_DIR, "FileList.csv")
+
+ARBITRARY_THRESHOLD = 80

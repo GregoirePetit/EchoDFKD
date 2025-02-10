@@ -8,6 +8,9 @@ dir_path = os.path.dirname(file_path)
 DATA_DIR = os.path.join(dir_path, "a4c-video-dir")
 VIDEO_DIR_DEFAULT = os.path.join(DATA_DIR, "Videos")
 VIDEO_DIR = os.getenv("VIDEO_DIR", VIDEO_DIR_DEFAULT)
+VIDEO_SYNTHETIC = os.path.join(DATA_DIR, "Videos_synthetic")
+VIDEO_PATHS = [VIDEO_DIR, VIDEO_SYNTHETIC]
+
 OUTPUT_DIR = os.path.join(dir_path, "Output")
 MODELS_DIR = os.path.join(dir_path, "models")
 ORIGINAL_OUTPUTS_DIR = os.path.join(OUTPUT_DIR, "echonet_deeplabV3")
@@ -31,7 +34,7 @@ APERTURE_ECHOCLIP_EXTENSION = ".npy"
 volumeTracing_path = os.path.join(dir_path, "a4c-video-dir", "VolumeTracings.csv")
 EXAMPLES_SUFFIX_IN_VOLUMETRACING = ".avi"
 EFDF_PATH = os.path.join(dir_path, "a4c-video-dir", "FileList.csv")
-
+SYNTHETIC_EFDF_PATH = os.path.join(dir_path, "a4c-video-dir", "synthetic_FileList.csv") 
 
 METRICS_DIR = os.path.join(OUTPUT_DIR, "metrics")
 VISUALS_DIR = os.path.join(OUTPUT_DIR, "visuals")
@@ -48,3 +51,5 @@ ARBITRARY_THRESHOLD = 80
 IMG_SIZE = 112
 
 STANDARD_TRACE_SEGMENTS = 21
+
+

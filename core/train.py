@@ -71,6 +71,19 @@ def main(
     PREPARE DATA
     """
 
+    # resolve video path
+    some_example = training_examples[0]
+    video_dir = None
+    for candidate_video_path in settings.VIDEO_PATHS:
+        matching_path = os.path.join(
+            candidate_video_path, some_example + settings.VIDEO_EXTENSION
+        )
+        if os.path.isfile(matching_path):
+            video_dir = candidate_video_path
+            break
+    else:
+        raise Exception("video path not found")
+
     tr_videos = [
         os.path.join(video_dir, x + settings.VIDEO_EXTENSION) for x in training_examples
     ]
@@ -165,9 +178,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--training_examples",
         type=str,
-        default=None,
+        default="synthetic",
     )
-    parser.add_argument("--val_examples", type=str, default=None)
+    parser.add_argument("--val_examples", type=str, default="synthetic")
     parser.add_argument(
         "--teacher_dir", type=str, default=settings.ORIGINAL_OUTPUTS_DIR
     )
@@ -187,7 +200,6 @@ if __name__ == "__main__":
     training_examples = args.training_examples
     val_examples = args.val_examples
     teacher_dir = args.teacher_dir
-    video_dir = settings.VIDEO_DIR
     hyperparameters_dir = args.hyperparameters
     skip_if_already_exists = args.skip_if_already_exists
     if skip_if_already_exists == "True":
@@ -198,19 +210,28 @@ if __name__ == "__main__":
     with open(hyperparameters_dir, "r") as f:
         hyperparameters = json.load(f)
 
-    if training_examples is None:
+    if training_examples == "real":
         training_examples = echonet_a4c_example.train_examples
+    elif training_examples == "synthetic":
+        training_examples = echonet_a4c_example.train_examples_synthetic
     else:
         with open(training_examples, "r") as f:
             training_examples = [x for x in f.read().split("\n") if x]
 
-    if val_examples is None:
+    if val_examples == "real":
         val_examples = echonet_a4c_example.val_examples
+    elif val_examples == "synthetic":
+        val_examples = echonet_a4c_example.val_examples_synthetic
     else:
         with open(val_examples, "r") as f:
             val_examples = [x for x in f.read().split("\n") if x]
 
     model_name = str(num_blocks) + str(num_layers_per_block)
+
+    xp_path = os.path.join(settings.MODELS_DIR, xp_name)
+    if not os.path.isdir(xp_path):
+        os.makedirs(xp_path)
+
     checkpoint_path = os.path.join(settings.MODELS_DIR, xp_name, f"{model_name}.ckpt")
 
     main(

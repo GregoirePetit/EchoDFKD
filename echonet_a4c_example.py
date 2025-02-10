@@ -45,14 +45,17 @@ volumetracing_dict = (
 
 
 EF_df = pd.read_csv(settings.EFDF_PATH)
+EF_df_synthetic = pd.read_csv(settings.SYNTHETIC_EFDF_PATH)
+
 EF_dict = {row["FileName"]: row.to_dict() for index, row in EF_df.iterrows()}
+EF_dict.update({row["FileName"]: row.to_dict() for index, row in EF_df_synthetic.iterrows()})
+
 train_EF = EF_df[EF_df["Split"] == "TRAIN"]
 val_EF = EF_df[EF_df["Split"] == "VAL"]
 test_EF = EF_df[EF_df["Split"] == "TEST"]
 train_examples = train_EF["FileName"].values.tolist()
 val_examples = val_EF["FileName"].values.tolist()
 test_examples = test_EF["FileName"].values.tolist()
-
 # We remove the 6 examples that have no entry in Volumetrace
 train_examples.remove("0X2DC68261CBCC04AE")
 train_examples.remove("0X6C435C1B417FDE8A")
@@ -61,6 +64,19 @@ train_examples.remove("0X5515B0BD077BE68A")
 train_examples.remove("0X35291BE9AB90FB89")
 test_examples.remove("0X5DD5283AC43CCDD1")
 
+train_EF = EF_df[EF_df["Split"] == "TRAIN"]
+val_EF = EF_df[EF_df["Split"] == "VAL"]
+test_EF = EF_df[EF_df["Split"] == "TEST"]
+train_examples = train_EF["FileName"].values.tolist()
+val_examples = val_EF["FileName"].values.tolist()
+test_examples = test_EF["FileName"].values.tolist()
+
+train_EF_synthetic = EF_df_synthetic[EF_df_synthetic["Split"] == "TRAIN"]
+val_EF_synthetic = EF_df_synthetic[EF_df_synthetic["Split"] == "VAL"]
+test_EF_synthetic = EF_df_synthetic[EF_df_synthetic["Split"] == "TEST"]
+train_examples_synthetic = train_EF_synthetic["FileName"].values.tolist()
+val_examples_synthetic = val_EF_synthetic["FileName"].values.tolist()
+test_examples_synthetic = test_EF_synthetic["FileName"].values.tolist()
 
 echonet_deeplab_aperture = pd.read_csv(settings.APERTURE)
 

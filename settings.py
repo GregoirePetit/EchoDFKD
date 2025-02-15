@@ -53,3 +53,7 @@ IMG_SIZE = 112
 STANDARD_TRACE_SEGMENTS = 21
 
 
+ORIGINAL_ECHONET_DYNAMIC_TEACHER = "echonet_deeplabV3"
+ORIGINAL_ECHONET_DYNAMIC_WEIGHTS = os.path.join(MODELS_DIR, "echonet_deeplabV3", "deeplabv3_resnet50_random.pt")
+
+

@@ -20,7 +20,9 @@ def mask_from_trace(trace, handle_incomplete_labels=False):
     x = np.concatenate((x1[1:], np.flip(x2[1:])))
     y = np.concatenate((y1[1:], np.flip(y2[1:])))
     r, c = skimage.draw.polygon(
-        np.rint(y).astype(int), np.rint(x).astype(int), (settings.IMG_SIZE, settings.IMG_SIZE)
+        np.rint(y).astype(int),
+        np.rint(x).astype(int),
+        (settings.IMG_SIZE, settings.IMG_SIZE),
     )
     mask = np.zeros((settings.IMG_SIZE, settings.IMG_SIZE), np.float32)
     mask[r, c] = 1
@@ -48,7 +50,9 @@ EF_df = pd.read_csv(settings.EFDF_PATH)
 EF_df_synthetic = pd.read_csv(settings.SYNTHETIC_EFDF_PATH)
 
 EF_dict = {row["FileName"]: row.to_dict() for index, row in EF_df.iterrows()}
-EF_dict.update({row["FileName"]: row.to_dict() for index, row in EF_df_synthetic.iterrows()})
+EF_dict.update(
+    {row["FileName"]: row.to_dict() for index, row in EF_df_synthetic.iterrows()}
+)
 
 train_EF = EF_df[EF_df["Split"] == "TRAIN"]
 val_EF = EF_df[EF_df["Split"] == "VAL"]
@@ -103,8 +107,10 @@ class Example:
         self.video_dir = video_dir
         # Assign ef_info_dict and tracing_info_dict directly
         self.ef_info_dict = EF_dict[example_name]
-        self.tracing_info_dict = volumetracing_dict[example_name + settings.EXAMPLES_SUFFIX_IN_VOLUMETRACING]
-        self.traces = self._build_trace_dict()
+        example_entry = example_name + settings.EXAMPLES_SUFFIX_IN_VOLUMETRACING
+        if example_entry in volumetracing_dict:
+            self.tracing_info_dict = volumetracing_dict[example_entry]
+            self.traces = self._build_trace_dict()
         # Dynamically set attributes for ef_info
         for key, value in self.ef_info_dict.items():
             setattr(self, key, value)
@@ -123,13 +129,21 @@ class Example:
 
     def __repr__(self):
         return self.example_name
-        
+
     def get_video_path(self):
         video_file = self.example_name
         extension = settings.VIDEO_EXTENSION
-        if not video_file[-len(settings.VIDEO_EXTENSION):] == settings.VIDEO_EXTENSION:
+        if not video_file[-len(settings.VIDEO_EXTENSION) :] == settings.VIDEO_EXTENSION:
             video_file += settings.VIDEO_EXTENSION
-        video_path = os.path.join(self.video_dir, video_file)
+
+        for candidate_video_path in settings.VIDEO_PATHS:
+            matching_path = os.path.join(candidate_video_path, video_file)
+            if os.path.isfile(matching_path):
+                video_path = matching_path
+                break
+        else:
+            raise Exception("video path not found")
+
         return video_path
 
     def get_video(self):
@@ -137,7 +151,7 @@ class Example:
         load the clip
         """
         video_path = self.get_video_path()
-        assert os.path.isfile(video_path), "not found : "+video_path
+        assert os.path.isfile(video_path), "not found : " + video_path
         return load_video(video_path)[0, ...]
 
     def get_traced_frames(self):
@@ -243,7 +257,11 @@ class Example:
             target_dir = os.path.join(settings.OUTPUT_DIR, xp_name)
         name = os.path.join(target_dir, self.example_name)
         if os.path.isfile(name + ".seg.npz"):
-            mask = np.load(name + ".seg.npz")["arr_0"]
+            content = np.load(name + ".seg.npz")
+            if "arr_0" in content:
+                mask = content["arr_0"]
+            else:
+                raise Exception
         elif os.path.isfile(name + "_predictions.npz"):
             mask = np.load(name + "_predictions.npz")["arr_0"]
         elif os.path.isfile(name + ".npz"):
@@ -257,7 +275,9 @@ class Example:
         load echoclip signal about phases
         """
         target_dir = settings.APERTURE_ECHOCLIP
-        target_path = os.path.join(target_dir, self.example_name + settings.APERTURE_ECHOCLIP_EXTENSION)
+        target_path = os.path.join(
+            target_dir, self.example_name + settings.APERTURE_ECHOCLIP_EXTENSION
+        )
         return np.load(target_path)
 
 
@@ -272,7 +292,12 @@ def yield_outputs(xp_name, model_subname, examples, phase):
             try:
                 xp_outputs = xp_outputs[dia_index]
             except IndexError:
-                print("can't open ", dia_index, " nth frame in mask tensor of shape ", xp_outputs.shapef)
+                print(
+                    "can't open ",
+                    dia_index,
+                    " nth frame in mask tensor of shape ",
+                    xp_outputs.shapef,
+                )
                 raise IndexError
         elif phase == "ES":
             xp_outputs = xp_outputs[sys_index]

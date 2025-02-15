@@ -20,8 +20,8 @@ import torchvision
 def loadvideo(filename: str) -> np.ndarray:
     """from the original repository"""
     assert isinstance(filename, str)
-    if not filename[-4:] == ".avi":
-        filename += ".avi"
+    if not filename[-4:] == settings.VIDEO_EXTENSION:
+        filename += settings.VIDEO_EXTENSION
     if not os.path.exists(filename):
         raise FileNotFoundError(filename)
     capture = cv2.VideoCapture(filename)
@@ -68,27 +68,38 @@ def load_deeplabV3_model(
     return model
 
 
-def load_and_preprocess_video(video_path, device):
+def load_and_preprocess_video(video_path):
     """load and preprocess for deeplabV3"""
-    input_video = np.array(loadvideo(video_path), dtype=np.float32)
+    input_video = np.array(loadvideo(video_path), dtype=np.float32)[:, :80, ...]
     mean = np.array([32.085175, 32.591923, 33.37932], dtype=np.float32)
     std = np.array([50.129288, 50.487717, 51.34619], dtype=np.float32)
     input_video -= mean.reshape(3, 1, 1, 1)
     input_video /= std.reshape(3, 1, 1, 1)
     input_video = torch.Tensor(input_video).float().transpose(0, 1)
-    return input_video.to(device)
+    return input_video
 
 
-def process_one_example(example_name, model, device):
+def process_one_example(example_name, model, loader, device):
     """process one example"""
     example = echonet_a4c_example.Example(example_name)
     video_path = example.get_video_path()
-    video = load_and_preprocess_video(video_path, device)
+    video = loader(video_path).to(device)
     output = model(video)["out"]
     return apply_sigmoid_and_convert(output.detach().numpy())
 
 
+def main(process_one_example, device, example_names, model, loader):
+    for example_name in example_names:
+        print(example_name)
+        output = process_one_example(example_name, model, loader, device)
+        output_path = os.path.join(
+            output_dir, example_name + settings.TEACHER_MASK_EXTENSION
+        )
+        np.savez_compressed(output_path, output)
+
+
 if __name__ == "__main__":
+    print("PRODUCE TARGETS ")
     parser = argparse.ArgumentParser()
     parser.add_argument("--teacher_name", type=str, default="echonet_deeplabV3")
     parser.add_argument("--device", type=str, default="cuda")
@@ -98,25 +109,30 @@ if __name__ == "__main__":
         default=None,
         help="Path of a file which contains list of examples on which to infer",
     )
+    parser.add_argument("--output_dir", type=str, default=None)
 
     args = parser.parse_args()
     teacher_name = args.teacher_name
     device = args.device
     examples = args.examples
+    output_dir = args.output_dir
 
     if examples is None:
-        example_names = echonet_a4c_example.test_examples
+        example_names = echonet_a4c_example.test_examples_synthetic
     else:
         with open(examples, "r") as f:
             example_names = [x for x in f.read().split("\n") if x]
-    teacher_name_path = os.path.join(
-        settings.MODELS_DIR, teacher_name, "deeplabv3_resnet50_random.pt"
-    )
-    model = load_deeplabV3_model(teacher_name_path, device)
 
-    # quick test
-    example_names = ["0X6517121A1CC175DC"]
+    if teacher_name == settings.ORIGINAL_ECHONET_DYNAMIC_TEACHER:
+        teacher_name_path = settings.ORIGINAL_ECHONET_DYNAMIC_WEIGHTS
+        model = load_deeplabV3_model(teacher_name_path, device)
+        loader = load_and_preprocess_video
+    else:
+        raise Exception("WIP")
 
-    for example_name in example_names:
-        output = process_one_example(example_name, model, device)
-        print(output.shape)
+    if output_dir is None:
+        output_dir = os.path.join(settings.OUTPUT_DIR, teacher_name)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    main(process_one_example, device, example_names, model, loader)

@@ -43,7 +43,6 @@ def main(
     device,
     skip_if_already_exists,
 ):
-
     if os.path.isfile(checkpoint_path) and skip_if_already_exists:
         return None
 

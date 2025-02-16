@@ -17,13 +17,49 @@ Ensure you have the following installed:
 - NumPy
 - Pandas
 
-You can install the required packages using the provided `requirements.txt` file:
+You can install all these packages using the provided `requirements.txt` file:
 
 ```bash
 python3 -m venv ~/echodfk
 source ~/echodfk/bin/activate
 pip install -r requirements.txt
 ```
+
+## Prepare models
+
+You will need to download some teachers model weights.
+In our experiment we use the trained model from the [EchoNet-Dynamic](https://echonet.github.io/dynamic/) project, which is available on the following link : https://github.com/douyang/EchoNetDynamic/releases/download/v1.0.0/deeplabv3_resnet50_random.pt .
+Don't hesitate to try other teacher models.
+Place weight files in models/your_teacher_name (for instance, models/echonet_deeplabV3).
+
+## Prepare Your Datasets
+
+You can download a synthetic dataset on https://huggingface.co/HReynaud (or you might want to generate your own synthetic dataset).
+If you want to run the experiments that show the performance of the model on the EchoNet-Dynamic dataset, you also need to download the dataset from the [EchoNet-Dynamic](https://echonet.github.io/dynamic/) website. The dataset is available for free but you need to request access. Recently, that dataset was also available on a Kaggle link.
+
+
+## Configure Paths and Hyperparameters
+
+WIP
+
+## Run the pipeline
+
+The pipeline follows these steps:
+
+0. **Production of a synthetic dataset**:
+1. **Production of targets on synthetic dataset**:
+
+2. **Training of the student model**:
+
+3. **Inference**:
+   Uses the trained student model to perform inference on the test dataset.
+
+4. **Model evaluation**:
+    Evaluates the student model on the test dataset using the following metrics:
+    - **Dice Similarity Coefficient (DICE)**: A measure of the overlap between the predicted and ground truth segmentations.
+    - **Average Hausdorff Distance (aFD)**: A measure of the distance between the predicted and ground truth segmentations.
+    - **Left Ventricular Ejection Fraction (LVEF)**: A measure of the heart's pumping capacity.
+5. **Visuals**:
 
 ## Directory Structure
 
@@ -79,16 +115,3 @@ EchoDFKD/
 │
 └── settings.py              # Constants, settings and configurations
 ```
-
-## Prepare Your Dataset
-
-WIP
-
-## Configure Paths and Hyperparameters
-
-WIP
-
-## Run the pipeline
-
-WIP
-

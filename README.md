@@ -68,50 +68,49 @@ The repository is structured as follows:
 ```
 EchoDFKD/
 │
-├── a4c-video-dir/           # Directory containing video files and related data
-│   ├── FileList.csv
-│   ├── synthetic_FileList.csv
-│   ├── Videos/
-│   ├── Videos_synthetic/
-│   └── VolumeTracings.csv
+├── a4c-video-dir/             # Directory containing video files and related data
+│   ├── FileList.csv           # contains volumes & EF, and train/val/test split for real data
+│   ├── synthetic_FileList.csv # contains volumes & EF, and train/val/test split for synthetic data
+│   ├── Videos/                # Dir containing real clips in AVI format (converted from DICOM)
+│   ├── Videos_synthetic/      # Dir containing synthetic AVI videos
+│   └── VolumeTracings.csv     # File from EchoNet-Dynamic containing human labels
 │
-├── ConvLSTM_Segmentation/   # Subrepo containing the student model architecture
+├── ConvLSTM_Segmentation/     # Subrepo containing the student model architecture
 │   └── ...
 │
-├── core/                    # Whole pipeline
-│   ├── utils.py
-│   ├── metrics.py
-│   └── train.py
-│   └── inference.py
-│   └── evaluate_LVEF.py
-│   └── evaluate_DICE.py
-│   └── evaluate_aFD.py
+├── core/                               # Whole pipeline
+│   ├── produce_targets.py              # Produces targets for synthetic dataset (first step)
+│   └── train.py                        # Trains the student model (second step)
+│   └── inference.py                    # Performs inference on the test dataset (third step)
+│   └── evaluate_LVEF.py                # Evaluates the student model on the test set (fourth step, part 1)
+│   └── evaluate_DICE.py                # Evaluates the student model on the test set (fourth step, part 2)
+│   └── evaluate_aFD.py                 # Evaluates the student model on the test set (fourth step, part 3)
+│   └── create_visuals.py               # Creates visuals for the student model (fifth step)
+│   └.. (create_synthetic_dataset.py ?) # WIP, would be step 0
 │
-├── data/                    # Will store large intermediate files
+├── data/                               # Will store large intermediate files
 │   └── ...
 │
-├── echoclip/                # Echoclip related data/feature files
+├── echoclip/                           # Echoclip related data/feature files
 │   └── ...
 │
-├── echonet_a4c_example.py   # define the important class Example
+├── echonet_a4c_example.py              # define the important class Example, representing a clip
 │
 ├── echonet_deeplab_dir/
-│   └── size.csv             # ED&ES labelled frames no. for each video
+│   └── size.csv                        # ED&ES labelled frames no. for each video
 │
 ├── examples_and_vizualisation/ 
-│   ├── Study_labels.ipynb   # Visualize labels produced by humans
-│   └── Study_EchoCLIP_outputs.ipynb # Visualize EchoCLIP-based phase inference
+│   ├── Study_labels.ipynb              # Visualize labels produced by humans
+│   └── Study_EchoCLIP_outputs.ipynb    # Visualize EchoCLIP-based phase inference
 │
-├── hyperparameters/         # Hyperparameter configurations
+├── hyperparameters/                    # Hyperparameter configurations
 │   └── ...
 │
-├── models/                  # Directory for storing model weights and hyperparams
+├── models/                             # Directory for storing model weights and hyperparams
 │   └── ...
 │
-├── Output/                  # Directory for output files
+├── Output/                             # Directory for model outputs
 │   └── ...
 │
-├── README.md                # Project documentation
-│
-└── settings.py              # Constants, settings and configurations
+└── settings.py                         # Constants, paths, settings
 ```

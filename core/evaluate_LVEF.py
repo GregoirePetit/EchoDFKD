@@ -1,42 +1,32 @@
+# Import necessary modules and libraries
 import utils
-
-""" 
-This experiment is not described in the paper, but it allows us, similar to the one concerning the localization of the frames of interest ES and ED,
-to evaluate the model using a score on an external task that is not the one used to train it.
-We can verify that, once again, comparing the estimations to those of EchoCLIP allows us to accurately assess the performance of the models (we obtain the same ranking as when we use the ground truth EFs provided by the original EchoNet Dynamic repo).
-"""
-
-
 import numpy as np
-import scipy.signal
 import sys
 import os
-import json
-from sklearn.linear_model import LinearRegression
-from scipy.stats import pearsonr
-
-core_dir = os.path.dirname(os.path.realpath(__file__))
-root_dir = os.path.dirname(core_dir)
-sys.path.append(root_dir)
-import echonet_a4c_example
-import settings
 from scipy.stats import pearsonr
 import argparse
 
+# Set up directory paths
+core_dir = os.path.dirname(os.path.realpath(__file__))
+root_dir = os.path.dirname(core_dir)
+sys.path.append(root_dir)
 
+# Import custom modules
+import echonet_a4c_example
+import settings
+
+# Function to yield ground truth ejection fraction (EF) values from the dataset
 def yield_ef_gt(dataset):
     for example in dataset:
         yield echonet_a4c_example.Example(example).EF
 
-
+# Function to calculate the Pearson correlation coefficient between two arrays
 def corr_coef(x, y):
     corr_coef, _ = pearsonr(x, y)
     return corr_coef
 
-
-def yield_naive_EF_estimation(
-    outputs_generator, threshold=settings.ARBITRARY_THRESHOLD
-):
+# Function to yield naive EF estimations based on mask outputs
+def yield_naive_EF_estimation(outputs_generator, threshold=settings.ARBITRARY_THRESHOLD):
     for ED_o, ES_o in outputs_generator:
         ED_area = (ED_o > threshold).sum()
         ES_area = (ES_o > threshold).sum()
@@ -47,7 +37,7 @@ def yield_naive_EF_estimation(
         downstream_naive_EF_estimation = 100 * downstream_naive_EF_estimation
         yield downstream_naive_EF_estimation
 
-
+# Function to get all ground truth EF values from the dataset
 def get_EF_GT(dataset):
     """
     Load all ground truth ejection fraction values.
@@ -56,20 +46,18 @@ def get_EF_GT(dataset):
     ef_gt_generator = yield_ef_gt(dataset=dataset)
     return np.array([x for x in ef_gt_generator])
 
-
+# Function to get all EchoCLIP EF values from the dataset
 def get_EF_EchoCLIP(dataset):
     """
     Load all EchoCLIP LVEF. In this quick PoC, we load only 1 value per example, so we can load everything into memory at once.
     It would be interesting to load the whole EchoCLIP array for all EF candidate values (instead of loading only the argmax value), and to train a model that learns a mapping between these outputs and a distribution over possible EF.
     """
-    return np.array(
-        [
-            echonet_a4c_example.Example(x).get_echoclip_features()["ejection_fraction"]
-            for x in dataset
-        ]
-    )
+    return np.array([
+        echonet_a4c_example.Example(x).get_echoclip_features()["ejection_fraction"]
+        for x in dataset
+    ])
 
-
+# Function to get naive EF estimations from mask outputs
 def get_naive_EF_estimation(xp_name, model_name, dataset):
     """
     Load all estimations of EF from mask outputs.
@@ -96,14 +84,8 @@ def get_naive_EF_estimation(xp_name, model_name, dataset):
     downstream_naive_EF_estimations = [x for x in naive_EF_estimation_generator]
     return downstream_naive_EF_estimations
 
-
-def main(
-    xp_name,
-    tested_model,
-    reference,
-    example_set,
-    metrics_dir=settings.METRICS_DIR,
-):
+# Main function to evaluate the model
+def main(xp_name, tested_model, reference, example_set, metrics_dir=settings.METRICS_DIR):
     if reference == "echoclip":
         reference_EF = get_EF_EchoCLIP(dataset=example_set)
     elif reference == "ground_truth":
@@ -121,9 +103,8 @@ def main(
 
     return results
 
-
+# Entry point of the script
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--xp_name", type=str, default=None, help="Experiment name.")
     parser.add_argument("--model_name", type=str, default=None)

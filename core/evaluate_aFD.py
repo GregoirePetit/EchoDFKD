@@ -5,6 +5,7 @@ import os
 import json
 import utils
 
+# Add core and root directories to the system path
 core_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.dirname(core_dir)
 sys.path.append(root_dir)
@@ -29,6 +30,20 @@ def get_peaks(
     minimal_distance_between_peaks=10,
     minimal_peak_prominence=1.5,
 ):
+    """
+    Identify peaks in the given signal.
+    
+    Parameters:
+    - example_aperture_gt: Ground truth aperture signal.
+    - minimal_distance_between_peaks: Minimum distance between peaks.
+    - minimal_peak_prominence: Minimum prominence of peaks.
+    
+    Returns:
+    - syspeaks: Indices of systolic peaks.
+    - diapeaks: Indices of diastolic peaks.
+    - ref_peak_index: Index of the reference peak.
+    """
+    # Find systolic peaks
     syspeaks, _ = scipy.signal.find_peaks(
         -example_aperture_gt,
         distance=minimal_distance_between_peaks,
@@ -38,6 +53,8 @@ def get_peaks(
         return [], [], np.argmin(example_aperture_gt)
     ref_peak_indexindex = np.argmin([example_aperture_gt[p] for p in syspeaks])
     ref_peak_index = syspeaks[ref_peak_indexindex]
+    
+    # Find diastolic peaks
     diapeaks, _ = scipy.signal.find_peaks(
         example_aperture_gt,
         distance=minimal_distance_between_peaks,
@@ -47,9 +64,19 @@ def get_peaks(
 
 
 def find_best_index_in_closest_block(mask_size_signal, reference_frame):
+    """
+    Find the best index in the closest block of values below the median.
+    
+    Parameters:
+    - mask_size_signal: Signal representing mask sizes.
+    - reference_frame: Reference frame index.
+    
+    Returns:
+    - min_index_in_block: Index of the minimal value within the closest block.
+    """
     median_val = np.median(mask_size_signal)
 
-    # Find connected blocks of True values in below_median
+    # Identify blocks of values below the median
     below_median = mask_size_signal < median_val
     if not below_median.any():
         below_median = mask_size_signal <= median_val
@@ -89,6 +116,18 @@ def find_reference_frame(
     evaluated_class,
     reverse,
 ):
+    """
+    Find the reference frame index based on the given reference type.
+    
+    Parameters:
+    - example: Example object containing data.
+    - reference: Type of reference ('echoclip', 'human', 'deeplabV3').
+    - evaluated_class: Class to be evaluated ('ES' or 'ED').
+    - reverse: Reverse factor for the signal.
+    
+    Returns:
+    - ref_peak_index: Reference peak index.
+    """
     if reference == "echoclip":
         example_aperture_gt = example.get_xp_aperture_gt()
         example_aperture_gt -= example_aperture_gt.mean()
@@ -138,6 +177,18 @@ def get_example_apert(
     xp_name,
     outputs_threshold,
 ):
+    """
+    Get the aperture signal for the given example and model.
+    
+    Parameters:
+    - example: Example object containing data.
+    - tested_model: Name of the tested model.
+    - xp_name: Experiment name.
+    - outputs_threshold: Threshold for the outputs.
+    
+    Returns:
+    - example_apert: Normalized aperture signal.
+    """
     if tested_model == "echoclip":
         example_apert = example.get_xp_aperture_gt()
     elif tested_model == "deeplabV3":
@@ -166,6 +217,22 @@ def evaluate_model_afd(
     shift_parameter=0,
     evaluated_class="ES",
 ):
+    """
+    Evaluate the model using the aFD metric.
+    
+    Parameters:
+    - xp_name: Experiment name.
+    - tested_model: Name of the tested model.
+    - reference: Type of reference ('echoclip', 'human', 'deeplabV3').
+    - example_set: Set of examples to evaluate.
+    - outputs_threshold: Threshold for the outputs.
+    - shift_parameter: Shift parameter for the delay calculation.
+    - evaluated_class: Class to be evaluated ('ES' or 'ED').
+    
+    Returns:
+    - delay_collection: Collection of delays for each example.
+    - example_collection: Collection of examples.
+    """
     if evaluated_class == "ES":
         reverse = 1
     elif evaluated_class == "ED":
@@ -208,9 +275,23 @@ def main(
     example_set,
     metrics_dir=settings.METRICS_DIR,
 ):
+    """
+    Main function to evaluate the model and save the results.
+    
+    Parameters:
+    - xp_name: Experiment name.
+    - tested_model: Name of the tested model.
+    - reference: Type of reference ('echoclip', 'human', 'deeplabV3').
+    - example_set: Set of examples to evaluate.
+    - metrics_dir: Directory to save the metrics.
+    
+    Returns:
+    - results: Dictionary containing the evaluation results.
+    """
+    # Evaluate the model for ED class
     ED_aFD = evaluate_model_afd(
         xp_name=xp_name,
-        tested_model=model_name,
+        tested_model=tested_model,
         reference=reference,
         outputs_threshold=25,
         shift_parameter=0,
@@ -220,9 +301,10 @@ def main(
     ED_aFD = np.abs(np.array(ED_aFD))
     ED_aFD = np.mean(ED_aFD)
 
+    # Evaluate the model for ES class
     ES_aFD = evaluate_model_afd(
         xp_name=xp_name,
-        tested_model=model_name,
+        tested_model=tested_model,
         reference=reference,
         outputs_threshold=25,
         shift_parameter=0,
@@ -234,6 +316,7 @@ def main(
 
     results = {"ED_aFD": ED_aFD, "ES_aFD": ES_aFD}
 
+    # Save the results
     utils.save_scores(results, xp_name, tested_model, metrics_dir)
 
     return results
@@ -241,6 +324,7 @@ def main(
 
 if __name__ == "__main__":
 
+    # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--xp_name", type=str, default=None, help="Experiment name.")
     parser.add_argument("--model_name", type=str, default=None)
@@ -263,12 +347,14 @@ if __name__ == "__main__":
     examples = args.examples
     reference = args.reference
 
+    # Load example names
     if examples is None:
         example_names = echonet_a4c_example.test_examples
     else:
         with open(examples, "r") as f:
             example_names = [x for x in f.read().split("\n") if x]
 
+    # Run the main evaluation function
     main(
         xp_name=xp_name,
         tested_model=model_name,

@@ -3,6 +3,7 @@ import configparser
 import json
 import os
 import sys
+import utils
 
 import numpy as np
 import pandas as pd
@@ -169,6 +170,8 @@ def main():
         video, video_expanded = create_segmentations(video_path, segmentation_array)
         similarity = getInfo(video, video_expanded)
         lv_scores.append(similarity)
+    results = {"seg_score_LVM_as_evaluator": float(np.mean(lv_scores))}
+    utils.save_scores(results, xp_name, model_name, settings.METRICS_DIR)
 
 
 if __name__ == "__main__":

@@ -81,9 +81,14 @@ def getInfo(video, video_expanded, chunk_size=200):
         similarity_raw = similarity_raw.reshape(
             similarity_raw.shape[1], similarity_raw.shape[2]
         ).T
-        return [
+        similarity_raw = similarity_raw.float().cpu().numpy()
+        similarity_raw_scores = [
             np.mean(list(similarity_raw[i])) for i in range(similarity_raw.shape[0])
-        ], [np.mean(list(similarity[i])) for i in range(similarity.shape[0])]
+        ]
+        similarity_scores = [
+            np.mean(list(similarity[i])) for i in range(similarity.shape[0])
+        ]
+        return similarity_raw_scores, similarity_scores
 
     video_embedding = extract_embeddings(video, chunk_size)
     video_embedding = F.normalize(video_embedding, dim=-1).unsqueeze(0)
@@ -155,6 +160,7 @@ def main():
         with open(examples, "r") as f:
             examples = [x for x in f.read().split("\n") if x]
 
+    lv_scores = []
     for example in examples:
         example = echonet_a4c_example.Example(example)
         print(example)
@@ -162,7 +168,7 @@ def main():
         segmentation_array = example.get_outputs(xp_name=xp_name, subdir=model_name)
         video, video_expanded = create_segmentations(video_path, segmentation_array)
         similarity = getInfo(video, video_expanded)
-        print(f"Similarity score: {similarity}")
+        lv_scores.append(similarity)
 
 
 if __name__ == "__main__":

@@ -32,12 +32,12 @@ def get_peaks(
 ):
     """
     Identify peaks in the given signal.
-    
+
     Parameters:
     - example_aperture_gt: Ground truth aperture signal.
     - minimal_distance_between_peaks: Minimum distance between peaks.
     - minimal_peak_prominence: Minimum prominence of peaks.
-    
+
     Returns:
     - syspeaks: Indices of systolic peaks.
     - diapeaks: Indices of diastolic peaks.
@@ -53,7 +53,7 @@ def get_peaks(
         return [], [], np.argmin(example_aperture_gt)
     ref_peak_indexindex = np.argmin([example_aperture_gt[p] for p in syspeaks])
     ref_peak_index = syspeaks[ref_peak_indexindex]
-    
+
     # Find diastolic peaks
     diapeaks, _ = scipy.signal.find_peaks(
         example_aperture_gt,
@@ -66,11 +66,11 @@ def get_peaks(
 def find_best_index_in_closest_block(mask_size_signal, reference_frame):
     """
     Find the best index in the closest block of values below the median.
-    
+
     Parameters:
     - mask_size_signal: Signal representing mask sizes.
     - reference_frame: Reference frame index.
-    
+
     Returns:
     - min_index_in_block: Index of the minimal value within the closest block.
     """
@@ -118,13 +118,13 @@ def find_reference_frame(
 ):
     """
     Find the reference frame index based on the given reference type.
-    
+
     Parameters:
     - example: Example object containing data.
     - reference: Type of reference ('echoclip', 'human', 'deeplabV3').
     - evaluated_class: Class to be evaluated ('ES' or 'ED').
     - reverse: Reverse factor for the signal.
-    
+
     Returns:
     - ref_peak_index: Reference peak index.
     """
@@ -179,13 +179,13 @@ def get_example_apert(
 ):
     """
     Get the aperture signal for the given example and model.
-    
+
     Parameters:
     - example: Example object containing data.
     - tested_model: Name of the tested model.
     - xp_name: Experiment name.
     - outputs_threshold: Threshold for the outputs.
-    
+
     Returns:
     - example_apert: Normalized aperture signal.
     """
@@ -219,7 +219,7 @@ def evaluate_model_afd(
 ):
     """
     Evaluate the model using the aFD metric.
-    
+
     Parameters:
     - xp_name: Experiment name.
     - tested_model: Name of the tested model.
@@ -228,7 +228,7 @@ def evaluate_model_afd(
     - outputs_threshold: Threshold for the outputs.
     - shift_parameter: Shift parameter for the delay calculation.
     - evaluated_class: Class to be evaluated ('ES' or 'ED').
-    
+
     Returns:
     - delay_collection: Collection of delays for each example.
     - example_collection: Collection of examples.
@@ -277,14 +277,14 @@ def main(
 ):
     """
     Main function to evaluate the model and save the results.
-    
+
     Parameters:
     - xp_name: Experiment name.
     - tested_model: Name of the tested model.
     - reference: Type of reference ('echoclip', 'human', 'deeplabV3').
     - example_set: Set of examples to evaluate.
     - metrics_dir: Directory to save the metrics.
-    
+
     Returns:
     - results: Dictionary containing the evaluation results.
     """

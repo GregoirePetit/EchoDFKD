@@ -24,6 +24,7 @@ import echonet_a4c_example
 import settings
 import torch
 
+
 def apply_sigmoid_and_convert(npyseg):
     """
     Apply sigmoid activation to the segmentation output and convert it to uint8 format.
@@ -33,6 +34,7 @@ def apply_sigmoid_and_convert(npyseg):
         Converted numpy array in uint8 format.
     """
     return (torch.sigmoid(torch.Tensor(npyseg)).numpy() * 255).astype(np.uint8)
+
 
 def load_model(
     checkpoint_path,
@@ -68,6 +70,7 @@ def load_model(
     model.to(device)  # Move the model to the specified device
     return model
 
+
 def infer(model, example):
     """
     Perform inference on a single example using the loaded model.
@@ -86,6 +89,7 @@ def infer(model, example):
     outputs = model(inputs)  # Perform inference
     return outputs.detach().numpy()  # Convert the outputs to a numpy array
 
+
 def main(model, examples, target_dir, device):
     """
     Main function to perform inference on a list of examples and save the results.
@@ -97,6 +101,7 @@ def main(model, examples, target_dir, device):
     """
     try:
         import tqdm
+
         g = tqdm.tqdm(examples)  # Use tqdm for progress bar if available
     except:
         g = examples  # Fallback to plain list if tqdm is not available
@@ -108,7 +113,10 @@ def main(model, examples, target_dir, device):
         if os.path.isfile(output_path):
             continue  # Skip if the output file already exists
         outputs = infer(model, example)  # Perform inference
-        np.savez_compressed(output_path, apply_sigmoid_and_convert(outputs))  # Save the results
+        np.savez_compressed(
+            output_path, apply_sigmoid_and_convert(outputs)
+        )  # Save the results
+
 
 if __name__ == "__main__":
     # Parse command-line arguments

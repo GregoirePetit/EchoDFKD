@@ -107,6 +107,7 @@ class Example:
         self.video_dir = video_dir
         # Assign ef_info_dict and tracing_info_dict directly
         self.ef_info_dict = EF_dict[example_name]
+        
         example_entry = example_name + settings.EXAMPLES_SUFFIX_IN_VOLUMETRACING
         if example_entry in volumetracing_dict:
             self.tracing_info_dict = volumetracing_dict[example_entry]

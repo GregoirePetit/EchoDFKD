@@ -12,6 +12,7 @@ sys.path.append(root_dir)
 import echonet_a4c_example
 import settings
 
+
 def yield_gt(dataset, phase):
     """
     Generator function to yield ground truth masks for each example in the dataset.
@@ -34,6 +35,7 @@ def yield_gt(dataset, phase):
         gt = echonet_a4c_example.mask_from_trace(labels)  # Generate mask from trace
         yield gt
 
+
 def mean_iou(mask1, mask2):
     """
     Calculate the mean Intersection over Union (IoU) between two masks.
@@ -49,6 +51,7 @@ def mean_iou(mask1, mask2):
         return 1.0 if intersection == 0 else 0.0
     iou = intersection / union
     return iou
+
 
 def dice_coefficient(mask1, mask2):
     """
@@ -66,8 +69,10 @@ def dice_coefficient(mask1, mask2):
     dice = 2 * intersection / sum_masks
     return dice
 
+
 # Dictionary mapping loss function names to their corresponding functions
 seg_loss_functions = {"DICE": dice_coefficient, "IoU": mean_iou}
+
 
 def yield_scores(gt_loader, outputs_loader, loss_function, threshold=None):
     """
@@ -85,6 +90,7 @@ def yield_scores(gt_loader, outputs_loader, loss_function, threshold=None):
             outputs = outputs > threshold  # Apply threshold if provided
         loss = loss_function(outputs, gt)  # Calculate loss
         yield loss
+
 
 def main(
     xp_name,
@@ -147,6 +153,7 @@ def main(
     utils.save_scores(results, xp_name, tested_model, metrics_dir)
 
     return results
+
 
 if __name__ == "__main__":
     # Parse command-line arguments

@@ -131,6 +131,23 @@ for k in range(1, max_size + 1):
         print("Running:", " ".join(cmd))
         subprocess.run(cmd, check=True)
 
+        cmd = [
+            "python3",
+            script_path + "evaluate_with_EchoCLIP.py",
+            "--xp_name",
+            xp_name,
+            "--model_name",
+            model_name,
+        ]
+        if not test_examples is None:
+            cmd += [
+                "--examples",
+                test_examples,
+            ]
+
+        print("Running:", " ".join(cmd))
+        subprocess.run(cmd, check=True)
+
         # Create visual report
         cmd = ["python3", script_path + "create_visuals.py", "--xp_name", xp_name]
 

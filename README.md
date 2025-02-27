@@ -40,7 +40,10 @@ If you want to run the experiments that show the performance of the model on the
 
 ## Configure Paths and Hyperparameters
 
-WIP
+You might want to change the paths in the `settings.py` file to match your local setup. 
+Concerning the directory containing the videos, you can simply set an environment variable with, for example, a command like `export VIDEO_DIR="/home/your_name/example_path/a4c-video-dir/Videos/"` and the code will automatically find the videos.
+
+You can also change the hyperparameters in the `hyperparameters` directory.
 
 ## Run the pipeline
 

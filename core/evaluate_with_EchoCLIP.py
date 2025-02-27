@@ -1,17 +1,15 @@
 import argparse
 import configparser
-import json
 import os
 import sys
 import utils
 
 import numpy as np
-import pandas as pd
-import torch
-import torch.nn.functional as F
+import torch # type: ignore
+import torch.nn.functional as F # type: ignore
 import cv2
-import torchvision.transforms as T
-from open_clip import create_model_and_transforms, tokenize
+import torchvision.transforms as T # type: ignore
+from open_clip import create_model_and_transforms, tokenize # type: ignore
 
 # Set up paths for importing modules
 core_dir = os.path.dirname(os.path.realpath(__file__))
@@ -104,13 +102,6 @@ def getInfo(video, video_expanded, chunk_size=200):
 
     torch.cuda.empty_cache()
     return similarity_raw_scores[0] + similarity_scores[0] - similarity_scores[1]
-
-
-def load_config(config_path="config_file.cf"):
-    """Load configuration from a file."""
-    config = configparser.ConfigParser()
-    config.read(config_path)
-    return config
 
 
 def create_segmentations(video_path, masks):

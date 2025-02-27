@@ -22,7 +22,7 @@ sys.path.append(convLSTM_dir)
 from models import ConvLSTM2Dlightning
 import echonet_a4c_example
 import settings
-import torch
+import torch # type: ignore
 
 
 def apply_sigmoid_and_convert(npyseg):
@@ -100,7 +100,7 @@ def main(model, examples, target_dir, device):
         device: Device to perform inference on (e.g., 'cuda' or 'cpu').
     """
     try:
-        import tqdm
+        import tqdm # type: ignore
 
         g = tqdm.tqdm(examples)  # Use tqdm for progress bar if available
     except:

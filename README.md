@@ -46,20 +46,12 @@ WIP
 
 The pipeline follows these steps:
 
-0. **Production of a synthetic dataset**:
-1. **Production of targets on synthetic dataset**:
-
-2. **Training of the student model**:
-
-3. **Inference**:
-   Uses the trained student model to perform inference on the test dataset.
-
-4. **Model evaluation**:
-    Evaluates the student model on the test dataset using the following metrics:
-    - **Dice Similarity Coefficient (DICE)**: A measure of the overlap between the predicted and ground truth segmentations.
-    - **Average Hausdorff Distance (aFD)**: A measure of the distance between the predicted and ground truth segmentations.
-    - **Left Ventricular Ejection Fraction (LVEF)**: A measure of the heart's pumping capacity.
-5. **Visuals**:
+0. **Production of a synthetic dataset**
+1. **Production of targets on synthetic dataset**
+2. **Training of the student model**
+3. **Inference**
+4. **Model evaluation**
+5. **Visuals**
 
 ## Directory Structure
 

@@ -56,6 +56,13 @@ The pipeline follows these steps:
 4. **Model evaluation**
 5. **Visuals**
 
+You can run the pipeline by executing the following command:
+
+```bash
+python core/run_all.py
+```
+Or you can run each step separately if you prefer.
+
 ## Directory Structure
 
 The repository is structured as follows:

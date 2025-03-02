@@ -123,4 +123,4 @@ EchoDFKD/
 Here is an improved version of the figure from the paper showing the DICE scores of our models. 
 Following recent works, we use a more subtle model than a linear one to fit the experimental curve, that better captures the saturation phenomenon when the dataset size becomes limiting.
 
-![Performance Segmentation](figure_perf_seg.png)
+![Performance Segmentation](figure_perf_seg_nogithubcache.png)

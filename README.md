@@ -2,7 +2,9 @@
 
 ## Overview
 
-EchoDFKD is a project that uses deep learning techniques to segment the left ventricle in echocardiography videos in a data-free knowledge distillation setup. 
+EchoDFKD is a framework to enable model training and evaluation using only interactions with other existing models, without the need for human labels or real data. 
+The framework is based on the idea of data-free knowledge distillation, where a student model is trained to mimic the behavior of a teacher model on a synthetic dataset generated from another trained model.
+The framework is designed to be general and can be applied to any domain where trained models are more easily available than labeled data which were used to train them. Here, we apply it to the domain of echocardiography, for the task of left ventricle segmentation.
 
 ## Installation
 
@@ -116,3 +118,9 @@ EchoDFKD/
 │
 └── settings.py                         # Constants, paths, settings
 ```
+## Results on the LV segmentation task
+
+Here is an improved version of the figure from the paper showing the DICE scores of our models. 
+Following recent works, we use a more subtle model than a linear one to fit the experimental curve, that better captures the saturation phenomenon when the dataset size becomes limiting.
+
+![Performance Segmentation](figure_perf_seg.png)

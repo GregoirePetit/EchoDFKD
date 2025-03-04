@@ -129,9 +129,8 @@ Following recent works, we use a more subtle model than a linear one to fit the 
 
 ## Roadmap
 
-1.
-The priorities for the next steps in this work are to aggregate additional teachers to improve the quality of the targets or to add other target classes (such as other chambers) for a more comprehensive segmentation or to train a multi-task model, potentially capable of performing segmentation as well as other tasks like regression or classification. For example, we are considering the model by Zhang et al., which is trained on a private dataset (containing A4C views and other views) for various tasks, including but not limited to segmentation tasks, as well as the paper by Arafati et al., which is trained on a dataset of approximately a thousand images for the four chambers. Another interesting teacher would be one of the models from the Segment Anything Model family.
+
+The priorities for the next steps in this work are to aggregate additional teachers to improve the quality of the targets or to add other target classes (such as other chambers) for a more comprehensive segmentation or to train a multi-task model, potentially capable of performing segmentation as well as other tasks like regression or classification. For example, we are considering the model by Zhang et al., which is trained on a private dataset (containing A4C views and other views) for various tasks, including but not limited to segmentation tasks, as well as the one from Arafati et al., which is trained on a dataset of approximately a thousand images for the four chambers. Another interesting teacher would be one of the models from the Segment Anything Model family.
 
 Another action is to increase the size of the synthetic dataset and/or add another generative model.
 
-2.

@@ -1,10 +1,12 @@
 # EchoDFKD
 
+EchoDFKD is in the proceedings of WACV2025, available [here](https://openaccess.thecvf.com/content/WACV2025/html/Petit_EchoDFKD_Data-Free_Knowledge_Distillation_for_Cardiac_Ultrasound_Segmentation_using_Synthetic_WACV_2025_paper.html).
+
 ## Overview
 
 EchoDFKD is a framework to enable model training and evaluation using only interactions with other existing models, without the need for human labels or real data. 
 The framework is based on the idea of data-free knowledge distillation, where a student model is trained to mimic the behavior of a teacher model on a synthetic dataset generated from another trained model.
-The framework is designed to be general and can be applied to any domain where trained models are more easily available than labeled data which were used to train them. Here, we apply it to the domain of echocardiography, for the task of left ventricle segmentation.
+The framework is designed to be general and can be applied to any domain where trained models are more easily available than labeled data used to train them. Here, we apply it to echocardiography for the task of left ventricle segmentation.
 
 ## Installation
 
@@ -37,13 +39,13 @@ Place weight files in models/your_teacher_name (for instance, models/echonet_dee
 ## Prepare Your Datasets
 
 You can download a synthetic dataset on https://huggingface.co/HReynaud (or you might want to generate your own synthetic dataset).
-If you want to run the experiments that show the performance of the model on the EchoNet-Dynamic dataset, you also need to download the dataset from the [EchoNet-Dynamic](https://echonet.github.io/dynamic/) website. The dataset is available for free but you need to request access. Recently, that dataset was also available on a Kaggle link.
+If you want to run the experiments that show the model's performance on the EchoNet-Dynamic dataset, you also need to download it from the [EchoNet-Dynamic](https://echonet.github.io/dynamic/) website. The dataset is available for free, but you need to request access. Recently, it was also available on a Kaggle link.
 
 
 ## Configure Paths and Hyperparameters
 
 You might want to change the paths in the `settings.py` file to match your local setup. 
-Concerning the directory containing the videos, you can simply set an environment variable with, for example, a command like `export VIDEO_DIR="/home/your_name/example_path/a4c-video-dir/Videos/"` and the code will automatically find the videos.
+Regarding the directory containing the videos, you can simply set an environment variable with, for example, a command like `export VIDEO_DIR="/home/your_name/example_path/a4c-video-dir/Videos/"` and the code will automatically find the videos.
 
 You can also change the hyperparameters in the `hyperparameters` directory.
 
@@ -69,7 +71,7 @@ Or you can run each step separately if you prefer.
 
 The repository is structured as follows:
 
-```
+```https://openaccess.thecvf.com/content/WACV2025/html/Petit_EchoDFKD_Data-Free_Knowledge_Distillation_for_Cardiac_Ultrasound_Segmentation_using_Synthetic_WACV_2025_paper.html
 EchoDFKD/
 │
 ├── a4c-video-dir/             # Directory containing video files and related data

@@ -70,7 +70,7 @@ def load_deeplabV3_model(
 
 def load_and_preprocess_video(video_path):
     """load and preprocess for deeplabV3"""
-    input_video = np.array(loadvideo(video_path), dtype=np.float32)[:, :80, ...]
+    input_video = np.array(loadvideo(video_path), dtype=np.float32)
     mean = np.array([32.085175, 32.591923, 33.37932], dtype=np.float32)
     std = np.array([50.129288, 50.487717, 51.34619], dtype=np.float32)
     input_video -= mean.reshape(3, 1, 1, 1)
